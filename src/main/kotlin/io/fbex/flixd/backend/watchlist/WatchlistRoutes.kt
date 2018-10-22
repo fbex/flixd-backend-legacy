@@ -17,6 +17,9 @@ class WatchlistRoutes : WebFluxConfigurer {
             path("/movies").nest {
                 GET("", movieHandler::all)
                 GET("/{id}", movieHandler::byId)
+                POST("", movieHandler::create)
+                PUT("/{id}", movieHandler::update)
+                DELETE("/{id}", movieHandler::deleteById)
             }
         }
     }
