@@ -2,6 +2,8 @@ buildscript {
     ext {
         kotlinVersion = '1.2.70'
         springBootVersion = '2.1.0.RC1'
+        junitVersion = '5.3.1'
+        mockitoKotlinVersion = '2.0.0-RC3'
     }
     repositories {
         mavenCentral()
@@ -37,6 +39,12 @@ compileTestKotlin {
     }
 }
 
+test {
+    testLogging {
+        events "PASSED", "STARTED", "FAILED", "SKIPPED"
+    }
+}
+
 repositories {
     mavenCentral()
     maven { url "https://repo.spring.io/snapshot" }
@@ -50,7 +58,13 @@ dependencies {
     implementation('com.fasterxml.jackson.module:jackson-module-kotlin')
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
-    testImplementation('org.springframework.boot:spring-boot-starter-test')
+    testImplementation('org.springframework.boot:spring-boot-starter-test') {
+        exclude group: 'junit'
+    }
     testImplementation('de.flapdoodle.embed:de.flapdoodle.embed.mongo')
     testImplementation('io.projectreactor:reactor-test')
+    testImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:${mockitoKotlinVersion}")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
+    testCompile("org.junit.jupiter:junit-jupiter-params:${junitVersion}")
+    testRuntime("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
 }

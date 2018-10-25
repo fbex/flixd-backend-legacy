@@ -1,26 +1,20 @@
 package io.fbex.flixd.backend.watchlist
 
+import classification.IntegrationTest
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
 import org.springframework.data.mongodb.core.MongoOperations
 import org.springframework.data.mongodb.core.findById
 import org.springframework.http.MediaType.APPLICATION_JSON_UTF8
-import org.springframework.test.context.ActiveProfiles
-import org.springframework.test.context.junit4.SpringRunner
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.body
 import reactor.core.publisher.Mono
 
-@RunWith(SpringRunner::class)
-@SpringBootTest(webEnvironment = RANDOM_PORT)
+@IntegrationTest
 @AutoConfigureWebTestClient
-@ActiveProfiles("integration-test")
 class FlixdBackendApplicationTests {
 
     @Autowired
@@ -29,7 +23,7 @@ class FlixdBackendApplicationTests {
     @Autowired
     private lateinit var mongo: MongoOperations
 
-    @Before
+    @BeforeEach
     fun setUp() {
         populateMongoDb()
     }
