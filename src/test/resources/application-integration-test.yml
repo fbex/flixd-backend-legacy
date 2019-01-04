@@ -1,2 +1,6 @@
 justwatch:
   base-url: http://localhost:8090
+
+tmdb:
+  base-url: http://localhost:8091
+  api-key: 123456789
