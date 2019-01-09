@@ -76,18 +76,14 @@ class VodIntegrationTests {
                         "type": "FLATRATE",
                         "provider": "SKY_GO",
                         "urls": {
-                            "web": "https://ad.zanox.com/ppc/?41728307C1348667999&ulp=[[http://www.skygo.sky.de/film/thriller/pulp-fiction/asset/filmsection/122681.html]]",
-                            "android": null,
-                            "ios": null
+                            "web": "https://ad.zanox.com/ppc/?41728307C1348667999&ulp=[[http://www.skygo.sky.de/film/thriller/pulp-fiction/asset/filmsection/122681.html]]"
                         }
                     },
                     {
                         "type": "FLATRATE",
                         "provider": "SKY_TICKET",
                         "urls": {
-                            "web": "https://ad.zanox.com/ppc/?41728307C1348667999&ulp=[[http://skyticket.sky.de/film/thriller/pulp-fiction/asset/filmsection/122681.html]]",
-                            "android": null,
-                            "ios": null
+                            "web": "https://ad.zanox.com/ppc/?41728307C1348667999&ulp=[[http://skyticket.sky.de/film/thriller/pulp-fiction/asset/filmsection/122681.html]]"
                         }
                     }
                 ]

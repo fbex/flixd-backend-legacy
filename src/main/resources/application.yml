@@ -1,10 +1,28 @@
 justwatch:
   base-url: https://api.justwatch.com
 
+logging:
+  level:
+    root: debug
+
+spring:
+  application:
+    name: flixd-backend
+
+tmdb:
+  base-url: https://api.themoviedb.org/3
+
 ---
+
+logging:
+  level:
+    root: info
 
 spring:
   profiles: heroku
   data:
     mongodb:
       uri: ${MONGODB_URI}
+
+tmdb:
+  api-key: ${TMDB_API_KEY}
