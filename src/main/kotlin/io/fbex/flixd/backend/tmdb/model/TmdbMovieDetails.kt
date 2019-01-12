@@ -2,10 +2,10 @@ package io.fbex.flixd.backend.tmdb.model
 
 import java.time.LocalDate
 
-data class MovieDetails(
+data class TmdbMovieDetails(
     val adult: Boolean,
     val backdrop_path: String?,
-    val belongs_to_collection: Any?,
+    val belongs_to_collection: Collection?,
     val budget: Int,
     val genres: List<Genre>,
     val homepage: String?,
@@ -28,6 +28,13 @@ data class MovieDetails(
     val video: Boolean,
     val vote_average: Double,
     val vote_count: Int
+)
+
+data class Collection(
+    val id: Int,
+    val name: String,
+    val poster_path: String?,
+    val backdrop_path: String?
 )
 
 data class Genre(

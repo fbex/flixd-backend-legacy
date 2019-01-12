@@ -2,14 +2,14 @@ package io.fbex.flixd.backend.tmdb.model
 
 import java.time.LocalDate
 
-data class SearchResult(
+data class TmdbSearchResult(
     val page: Int,
     val total_results: Int,
     val total_pages: Int,
-    val results: List<MovieResult>
+    val results: List<TmdbMovieResult>
 )
 
-data class MovieResult(
+data class TmdbMovieResult(
     val id: Int,
     val title: String,
     val vote_average: Double,

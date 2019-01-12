@@ -1,7 +1,7 @@
 package io.fbex.flixd.backend.tmdb
 
-import io.fbex.flixd.backend.tmdb.model.MovieDetails
-import io.fbex.flixd.backend.tmdb.model.SearchResult
+import io.fbex.flixd.backend.tmdb.model.TmdbMovieDetails
+import io.fbex.flixd.backend.tmdb.model.TmdbSearchResult
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
@@ -21,7 +21,7 @@ class TmdbWebClient(
      * Responses from that resource will also indicate which media_type the results
      * are (i.e. movie or tv show).
      */
-    fun searchMovies(query: String): Mono<SearchResult> = client.get()
+    fun searchMovies(query: String): Mono<TmdbSearchResult> = client.get()
         .uri { builder ->
             builder
                 .path("/search/movie")
@@ -31,9 +31,9 @@ class TmdbWebClient(
                 .queryParam("include_adult", false)
                 .queryParam("query", query)
                 .build()
-        }.retrieve().bodyToMono(SearchResult::class.java)
+        }.retrieve().bodyToMono(TmdbSearchResult::class.java)
 
-    fun getMovieDetails(tmdbId: Int): Mono<MovieDetails> = client.get()
+    fun getMovieDetails(tmdbId: Int): Mono<TmdbMovieDetails> = client.get()
         .uri { builder ->
             builder
                 .path("/movie/$tmdbId")
@@ -44,7 +44,7 @@ class TmdbWebClient(
         .retrieve()
         .onStatus({ it == HttpStatus.NOT_FOUND }) { Mono.empty() }
         .onStatus(HttpStatus::isError) { throw TmdbHttpErrorException(statusCode = it.rawStatusCode()) }
-        .bodyToMono(MovieDetails::class.java)
+        .bodyToMono(TmdbMovieDetails::class.java)
 
     private companion object {
         const val LANGUAGE = "en-US"

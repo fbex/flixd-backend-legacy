@@ -1,6 +1,6 @@
 package io.fbex.flixd.backend.tmdb
 
-import io.fbex.flixd.backend.tmdb.model.SearchResult
+import io.fbex.flixd.backend.tmdb.model.TmdbSearchResult
 import org.springframework.http.MediaType.APPLICATION_JSON_UTF8
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.BodyInserters.fromObject
@@ -18,7 +18,7 @@ class TmdbHandler(
     fun search(request: ServerRequest): Mono<ServerResponse> =
         request.bodyToMono(SearchRequest::class.java).flatMap { searchRequest ->
             val result = tmdbWebClient.searchMovies(searchRequest.query)
-            ok().contentType(APPLICATION_JSON_UTF8).body(result, SearchResult::class.java)
+            ok().contentType(APPLICATION_JSON_UTF8).body(result, TmdbSearchResult::class.java)
         }
 
     fun getMovieById(request: ServerRequest): Mono<ServerResponse> {

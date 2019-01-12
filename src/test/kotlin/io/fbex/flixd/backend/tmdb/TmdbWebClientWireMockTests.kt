@@ -8,6 +8,8 @@ import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpHeaders
@@ -58,73 +60,121 @@ internal class TmdbWebClientWireMockTests {
         }
     }
 
-    @Test
-    fun `get movie details`() {
-        val response = javaClass.getResourceAsStream("tmdb_movie_details-pulp_fiction.json").bufferedReader().readText()
+    @DisplayName("get movie details")
+    @Nested
+    inner class GetMovieDetails {
 
-        wireMock.givenThat(
-            get(movieUrlForId(PULP_FICTION_ID))
-                .willReturn(
-                    aResponse()
-                        .withStatus(HttpStatus.OK.value())
-                        .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_UTF8_VALUE)
-                        .withBody(response)
-                )
-        )
+        @Test
+        fun `get movie details for "Pulp Fiction"`() {
+            val response =
+                javaClass.getResourceAsStream("tmdb_movie_details-pulp_fiction.json").bufferedReader().readText()
 
-        val result = testee.getMovieDetails(PULP_FICTION_ID).block()
+            wireMock.givenThat(
+                get(movieUrlForId(PULP_FICTION_ID))
+                    .willReturn(
+                        aResponse()
+                            .withStatus(HttpStatus.OK.value())
+                            .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_UTF8_VALUE)
+                            .withBody(response)
+                    )
+            )
 
-        assertThat(result).isEqualTo(MOVIE_PULP_FICTION_DETAILS)
-    }
+            val result = testee.getMovieDetails(PULP_FICTION_ID).block()
 
-    @Test
-    fun `return null for status NOT_FOUND`() {
-        wireMock.givenThat(
-            get(movieUrlForId(PULP_FICTION_ID))
-                .willReturn(
-                    aResponse()
-                        .withStatus(HttpStatus.NOT_FOUND.value())
-                )
-        )
+            assertThat(result).isEqualTo(MOVIE_PULP_FICTION_DETAILS)
+        }
 
-        val result = testee.getMovieDetails(PULP_FICTION_ID).block()
+        @Test
+        fun `get movie details for "GoodFellas"`() {
+            val response =
+                javaClass.getResourceAsStream("tmdb_movie_details-goodfellas.json").bufferedReader().readText()
 
-        assertThat(result).isNull()
-    }
+            wireMock.givenThat(
+                get(movieUrlForId(GOODFELLAS_ID))
+                    .willReturn(
+                        aResponse()
+                            .withStatus(HttpStatus.OK.value())
+                            .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_UTF8_VALUE)
+                            .withBody(response)
+                    )
+            )
 
-    @Test
-    fun `throws for 4xx error`() {
-        wireMock.givenThat(
-            get(movieUrlForId(PULP_FICTION_ID))
-                .willReturn(
-                    aResponse()
-                        .withStatus(HttpStatus.BAD_REQUEST.value())
-                )
-        )
+            val result = testee.getMovieDetails(GOODFELLAS_ID).block()
 
-        assertThatThrownBy { testee.getMovieDetails(PULP_FICTION_ID).block() }
-            .isInstanceOf(TmdbHttpErrorException::class.java)
-            .hasMessage("TMDb responded with http status [400]")
-    }
+            assertThat(result).isEqualTo(MOVIE_GOODFELLAS_DETAILS)
+        }
 
-    @Test
-    fun `throws for 5xx error`() {
-        wireMock.givenThat(
-            get(movieUrlForId(PULP_FICTION_ID))
-                .willReturn(
-                    aResponse()
-                        .withStatus(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                )
-        )
+        @Test
+        fun `get movie details for "The Godfather"`() {
+            val response =
+                javaClass.getResourceAsStream("tmdb_movie_details-the_godfather.json").bufferedReader().readText()
 
-        assertThatThrownBy { testee.getMovieDetails(PULP_FICTION_ID).block() }
-            .isInstanceOf(TmdbHttpErrorException::class.java)
-            .hasMessage("TMDb responded with http status [500]")
+            wireMock.givenThat(
+                get(movieUrlForId(THE_GODFATHER_ID))
+                    .willReturn(
+                        aResponse()
+                            .withStatus(HttpStatus.OK.value())
+                            .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_UTF8_VALUE)
+                            .withBody(response)
+                    )
+            )
+
+            val result = testee.getMovieDetails(THE_GODFATHER_ID).block()
+
+            assertThat(result).isEqualTo(MOVIE_THE_GODFATHER_DETAILS)
+        }
+
+        @Test
+        fun `return null for status NOT_FOUND`() {
+            wireMock.givenThat(
+                get(movieUrlForId(PULP_FICTION_ID))
+                    .willReturn(
+                        aResponse()
+                            .withStatus(HttpStatus.NOT_FOUND.value())
+                    )
+            )
+
+            val result = testee.getMovieDetails(PULP_FICTION_ID).block()
+
+            assertThat(result).isNull()
+        }
+
+        @Test
+        fun `throws for 4xx error`() {
+            wireMock.givenThat(
+                get(movieUrlForId(PULP_FICTION_ID))
+                    .willReturn(
+                        aResponse()
+                            .withStatus(HttpStatus.BAD_REQUEST.value())
+                    )
+            )
+
+            assertThatThrownBy { testee.getMovieDetails(PULP_FICTION_ID).block() }
+                .isInstanceOf(TmdbHttpErrorException::class.java)
+                .hasMessage("TMDb responded with http status [400]")
+        }
+
+        @Test
+        fun `throws for 5xx error`() {
+            wireMock.givenThat(
+                get(movieUrlForId(PULP_FICTION_ID))
+                    .willReturn(
+                        aResponse()
+                            .withStatus(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                    )
+            )
+
+            assertThatThrownBy { testee.getMovieDetails(PULP_FICTION_ID).block() }
+                .isInstanceOf(TmdbHttpErrorException::class.java)
+                .hasMessage("TMDb responded with http status [500]")
+        }
     }
 
     private fun movieUrlForId(id: Int) = "/movie/$id?api_key=123456789&language=en-US"
 
     private companion object {
         const val PULP_FICTION_ID = 680
+        const val GOODFELLAS_ID = 769
+        const val THE_GODFATHER_ID = 238
     }
 }
