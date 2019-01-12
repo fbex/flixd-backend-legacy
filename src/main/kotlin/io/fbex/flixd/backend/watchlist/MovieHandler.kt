@@ -1,16 +1,22 @@
 package io.fbex.flixd.backend.watchlist
 
+import io.fbex.flixd.backend.tmdb.TmdbWebClient
+import io.fbex.flixd.backend.vod.VodFacade
 import org.springframework.http.MediaType.APPLICATION_JSON_UTF8
 import org.springframework.stereotype.Component
+import org.springframework.web.reactive.function.BodyInserters.fromObject
 import org.springframework.web.reactive.function.server.ServerRequest
 import org.springframework.web.reactive.function.server.ServerResponse
-import org.springframework.web.reactive.function.server.ServerResponse.badRequest
+import org.springframework.web.reactive.function.server.ServerResponse.notFound
 import org.springframework.web.reactive.function.server.ServerResponse.ok
 import reactor.core.publisher.Mono
+import reactor.core.publisher.switchIfEmpty
 
 @Component
 class MovieHandler(
-        val movieRepository: MovieRepository
+    val movieRepository: MovieRepository,
+    val tmdbWebClient: TmdbWebClient,
+    val vodFacade: VodFacade
 ) {
 
     fun all(request: ServerRequest): Mono<ServerResponse> {
@@ -18,33 +24,76 @@ class MovieHandler(
         return ok().contentType(APPLICATION_JSON_UTF8).body(movies, Movie::class.java)
     }
 
-    fun byId(request: ServerRequest): Mono<ServerResponse> {
-        val id = request.pathVariable("id")
-        val movie = movieRepository.findById(id)
-        return ok().contentType(APPLICATION_JSON_UTF8).body(movie, Movie::class.java)
-    }
-
-    fun create(request: ServerRequest): Mono<ServerResponse> =
-            request.bodyToMono(Movie::class.java).flatMap {
-                val created = movieRepository.save(it)
-                ok().contentType(APPLICATION_JSON_UTF8).body(created, Movie::class.java)
-            }
-
-    fun update(request: ServerRequest): Mono<ServerResponse> =
-            request.bodyToMono(Movie::class.java).flatMap {
-                val id = request.pathVariable("id")
-                if (id == it.id) {
-                    val updated = movieRepository.save(it)
-                    ok().contentType(APPLICATION_JSON_UTF8).body(updated, Movie::class.java)
-                } else {
-                    badRequest().build()
-                }
-            }
-
     fun deleteById(request: ServerRequest): Mono<ServerResponse> {
         val id = request.pathVariable("id")
         return movieRepository.deleteById(id).flatMap {
             ok().build()
         }
     }
+
+    fun create(request: ServerRequest): Mono<ServerResponse> =
+            /*
+                TODO: adapt the workflow below: therefore add a WatchlistRepository
+                Extract tmdbId from request body. Then there are 3 possibilities:
+
+                1. Check if a movie with that tmdbId already exists
+                2. If movie exists -> add it's ID to watchlist repository
+
+                1. Get movie details from tmdb
+                2. Get streams from JustWatch
+                3. Aggregate movie details, streams and imdb/tomato scores
+                4. Add movie to MovieRepository
+                5. Add movie to WatchlistRepository
+
+                Error scenarios:
+                - tmdb doesn't find a result -> 404
+                - tmdb error -> 500
+                - justwatch doesn't find anything
+                    -> Production state: skip and set null/emptyList for the expected data -> log this occurence -> manually inspect
+                    -> For testing period: Throw an error, so you notice something went wrong -> inspect it / file a bug
+                - justwatch error -> 500
+                - repository connection error -> 500
+             */
+        request.bodyToMono(CreateMovieRequest::class.java).flatMap { createRequest ->
+            movieRepository.findByTmdbId(createRequest.tmdbId).switchIfEmpty {
+                createMovie(createRequest.tmdbId).flatMap { createdMovie ->
+                    movieRepository.save(createdMovie)
+                }
+            }.flatMap { movie ->
+                ok().contentType(APPLICATION_JSON_UTF8).body(fromObject(movie))
+            }.switchIfEmpty {
+                notFound().build()
+            }
+        }
+
+    private fun createMovie(tmdbId: Int): Mono<Movie> =
+        tmdbWebClient.getMovieDetails(tmdbId).flatMap { movieDetails ->
+            vodFacade.searchTitle(
+                tmdbId = movieDetails.id,
+                title = movieDetails.title,
+                releaseDate = movieDetails.release_date
+            ).map { vodInformation ->
+                Movie(
+                    id = null,  // set by the repository
+                    tmdbId = movieDetails.id,
+                    imdbId = movieDetails.imdb_id,
+                    tomatoId = vodInformation.tomatoId,
+                    justWatchId = vodInformation.justWatchId,
+                    title = movieDetails.title,
+                    originalTitle = movieDetails.original_title,
+                    releaseDate = movieDetails.release_date,
+                    runtime = movieDetails.runtime,
+                    genres = movieDetails.genres,
+                    overview = movieDetails.overview,
+                    posterPath = movieDetails.poster_path,
+                    adult = false,
+                    scores = Scores(tmdb = movieDetails.vote_average),
+                    offers = vodInformation.offers
+                )
+            }
+        }
 }
+
+data class CreateMovieRequest(
+    val tmdbId: Int
+)
