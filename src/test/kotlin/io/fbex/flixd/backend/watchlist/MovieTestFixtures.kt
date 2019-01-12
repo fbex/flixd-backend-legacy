@@ -1,18 +1,27 @@
-package io.fbex.flixd.backend.vod
+package io.fbex.flixd.backend.watchlist
 
+import io.fbex.flixd.backend.tmdb.model.Genre
 import io.fbex.flixd.backend.vod.model.Offer
 import io.fbex.flixd.backend.vod.model.OfferType
 import io.fbex.flixd.backend.vod.model.OfferUrls
 import io.fbex.flixd.backend.vod.model.Provider
-import io.fbex.flixd.backend.vod.model.VodInformation
+import java.time.LocalDate
 
-val VOD_PULP_FICTION = VodInformation(
+val MOVIE_PULP_FICTION = Movie(
+    id = "5c3b9440f5eb260004cae818",
+    tmdbId = 680,
     justWatchId = 112130,
+    imdbId = "tt0110912",
+    tomatoId = 13863,
     title = "Pulp Fiction",
     originalTitle = "Pulp Fiction",
-    year = 1994,
-    tmdbId = 680,
-    tomatoId = 13863,
+    releaseDate = LocalDate.of(1994, 9, 10),
+    runtime = 154,
+    genres = listOf(Genre(id = 53, name = "Thriller"), Genre(id = 80, name = "Crime")),
+    overview = "A burger-loving hit man, his philosophical partner, a drug-addled gangster's moll and a washed-up boxer converge in this sprawling, comedic crime caper. Their adventures unfurl in three stories that ingeniously trip back and forth in time.",
+    posterPath = "/dM2w364MScsjFf8pfMbaWUcWrR.jpg",
+    adult = false,
+    scores = Scores(tmdb = 8.4),
     offers = listOf(
         Offer(
             type = OfferType.FLATRATE,
@@ -53,13 +62,39 @@ val VOD_PULP_FICTION = VodInformation(
     )
 )
 
-val VOD_THE_GODFATHER = VodInformation(
-    justWatchId = 155580,
-    title = "Der Pate",
-    originalTitle = "The Godfather",
-    year = 1972,
+val MOVIE_GOODFELLAS = Movie(
+    id = "5c3b91d0f5eb260004cae817",
+    tmdbId = 769,
+    justWatchId = 155787,
+    imdbId = "tt0099685",
+    tomatoId = null,
+    title = "GoodFellas",
+    originalTitle = "GoodFellas",
+    releaseDate = LocalDate.of(1990, 9, 12),
+    runtime = 145,
+    genres = listOf(Genre(id = 18, name = "Drama"), Genre(id = 80, name = "Crime")),
+    overview = "The true story of Henry Hill, a half-Irish, half-Sicilian Brooklyn kid who is adopted by neighbourhood gangsters at an early age and climbs the ranks of a Mafia family under the guidance of Jimmy Conway.",
+    posterPath = "/hAPeXBdGDGmXRPj4OZZ0poH65Iu.jpg",
+    adult = false,
+    scores = Scores(tmdb = 8.4),
+    offers = emptyList()
+)
+
+val MOVIE_THE_GODFATHER = Movie(
+    id = "5c3b9b99f5eb260004cae819",
     tmdbId = 238,
+    justWatchId = 155580,
+    imdbId = "tt0068646",
     tomatoId = 12911,
+    title = "The Godfather",
+    originalTitle = "The Godfather",
+    releaseDate = LocalDate.of(1972, 3, 14),
+    runtime = 175,
+    genres = listOf(Genre(id = 18, name = "Drama"), Genre(id = 80, name = "Crime")),
+    overview = "Spanning the years 1945 to 1955, a chronicle of the fictional Italian-American Corleone crime family. When organized crime family patriarch, Vito Corleone barely survives an attempt on his life, his youngest son, Michael steps in to take care of the would-be killers, launching a campaign of bloody revenge.",
+    posterPath = "/d4KNaTrltq6bpkFS01pYtyXa09m.jpg",
+    adult = false,
+    scores = Scores(tmdb = 8.6),
     offers = listOf(
         Offer(
             type = OfferType.FLATRATE,

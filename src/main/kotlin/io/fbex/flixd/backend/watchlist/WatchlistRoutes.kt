@@ -12,11 +12,9 @@ class WatchlistRoutes : WebFluxConfigurer {
     @Bean
     fun routeMovie(movieHandler: MovieHandler) = router {
         accept(APPLICATION_JSON_UTF8).nest {
-            path("/movies").nest {
+            path("/watchlist").nest {
                 GET("", movieHandler::all)
-                GET("/{id}", movieHandler::byId)
                 POST("", movieHandler::create)
-                PUT("/{id}", movieHandler::update)
                 DELETE("/{id}", movieHandler::deleteById)
             }
         }
