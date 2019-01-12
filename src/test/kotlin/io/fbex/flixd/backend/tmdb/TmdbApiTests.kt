@@ -2,7 +2,7 @@ package io.fbex.flixd.backend.tmdb
 
 import classification.IntegrationTest
 import com.nhaarman.mockitokotlin2.given
-import io.fbex.flixd.backend.tmdb.model.SearchResult
+import io.fbex.flixd.backend.tmdb.model.TmdbSearchResult
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
@@ -24,7 +24,7 @@ internal class TmdbApiTests {
 
     @Test
     fun `search movie`() {
-        val searchResult = SearchResult(
+        val searchResult = TmdbSearchResult(
             page = 1,
             total_pages = 1,
             total_results = 1,
@@ -40,7 +40,7 @@ internal class TmdbApiTests {
             .body(fromObject(SearchRequest(QUERY)))
             .exchange()
             .expectStatus().isOk
-            .expectBody(SearchResult::class.java)
+            .expectBody(TmdbSearchResult::class.java)
     }
 
     @Test
