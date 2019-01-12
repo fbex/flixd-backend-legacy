@@ -1,11 +1,11 @@
 buildscript {
     ext {
         kotlinVersion = '1.3.11'
-        springBootVersion = '2.1.1.RELEASE'
+        springBootVersion = '2.1.2.RELEASE'
         springCloudVersion = 'Greenwich.RC2'
 
         junitVersion = '5.3.1'
-        mockitoKotlinVersion = '2.0.0'
+        mockitoKotlinVersion = '2.1.0'
         wireMockVersion = '2.20.0'
 
         dependencyUpdatesVersion = '0.20.0'
@@ -26,7 +26,6 @@ buildscript {
 
 apply plugin: 'kotlin'
 apply plugin: 'kotlin-spring'
-apply plugin: 'eclipse'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
 apply plugin: "com.github.ben-manes.versions"
@@ -34,31 +33,12 @@ apply plugin: "com.github.ben-manes.versions"
 group = 'io.fbex.flixd'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = 1.8
-compileKotlin {
-    kotlinOptions {
-        freeCompilerArgs = ["-Xjsr305=strict"]
-        jvmTarget = "1.8"
-    }
-}
-compileTestKotlin {
-    kotlinOptions {
-        freeCompilerArgs = ["-Xjsr305=strict"]
-        jvmTarget = "1.8"
-    }
-}
-
-test {
-    testLogging {
-        events "PASSED", "STARTED", "FAILED", "SKIPPED"
-    }
-}
 
 repositories {
     mavenCentral()
     maven { url "https://repo.spring.io/snapshot" }
     maven { url "https://repo.spring.io/milestone" }
 }
-
 
 dependencies {
     implementation('org.springframework.boot:spring-boot-starter-data-mongodb-reactive')
@@ -84,5 +64,25 @@ dependencies {
 dependencyManagement {
     imports {
         mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
+}
+
+compileKotlin {
+    kotlinOptions {
+        freeCompilerArgs = ["-Xjsr305=strict"]
+        jvmTarget = "1.8"
+    }
+}
+compileTestKotlin {
+    kotlinOptions {
+        freeCompilerArgs = ["-Xjsr305=strict"]
+        jvmTarget = "1.8"
+    }
+}
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        events "PASSED", "STARTED", "FAILED", "SKIPPED"
     }
 }
