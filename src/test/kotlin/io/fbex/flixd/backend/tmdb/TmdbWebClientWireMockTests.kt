@@ -150,8 +150,8 @@ internal class TmdbWebClientWireMockTests {
             )
 
             assertThatThrownBy { testee.getMovieDetails(PULP_FICTION_ID).block() }
-                .isInstanceOf(TmdbHttpErrorException::class.java)
-                .hasMessage("TMDb responded with http status [400]")
+                .isInstanceOf(TmdbHttpResponseException::class.java)
+                .hasMessage("TMDb responded with http status [400 BAD_REQUEST]")
         }
 
         @Test
@@ -165,8 +165,8 @@ internal class TmdbWebClientWireMockTests {
             )
 
             assertThatThrownBy { testee.getMovieDetails(PULP_FICTION_ID).block() }
-                .isInstanceOf(TmdbHttpErrorException::class.java)
-                .hasMessage("TMDb responded with http status [500]")
+                .isInstanceOf(TmdbHttpResponseException::class.java)
+                .hasMessage("TMDb responded with http status [500 INTERNAL_SERVER_ERROR]")
         }
     }
 
