@@ -43,7 +43,7 @@ class TmdbWebClient(
         }
         .retrieve()
         .onStatus({ it == HttpStatus.NOT_FOUND }) { Mono.empty() }
-        .onStatus(HttpStatus::isError) { throw TmdbHttpErrorException(statusCode = it.rawStatusCode()) }
+        .onStatus(HttpStatus::isError) { throw TmdbHttpResponseException(httpStatus = it.statusCode()) }
         .bodyToMono(TmdbMovieDetails::class.java)
 
     private companion object {
@@ -51,4 +51,5 @@ class TmdbWebClient(
     }
 }
 
-class TmdbHttpErrorException(statusCode: Int) : IllegalStateException("TMDb responded with http status [$statusCode]")
+class TmdbHttpResponseException(httpStatus: HttpStatus) :
+    IllegalStateException("TMDb responded with http status [$httpStatus]")
