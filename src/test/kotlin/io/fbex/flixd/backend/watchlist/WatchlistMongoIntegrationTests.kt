@@ -40,9 +40,44 @@ class WatchlistMongoIntegrationTests {
     @MockBean
     private lateinit var vodFacade: VodFacade
 
+    @Autowired
+    private lateinit var watchlistRepository: WatchlistRepository
+
     @BeforeEach
     fun setUp() {
         populateMongoDb()
+    }
+
+    @Test
+    fun `test it`() {
+        // TODO: replace this test
+        val res = watchlistRepository.findByIdAndAggregateMovies(WATCHLIST_USER_2_ITEMS.id!!).block()
+
+        assertThat(res).isEqualTo(AGGREGATED_WATCHLIST_USER_2_ITEMS)
+    }
+
+    @Test
+    fun `test update`() {
+        // TODO: replace this test
+        val now = getWatchlistById(WATCHLIST_USER_2_ITEMS.id!!)
+        assertThat(now).isEqualTo(WATCHLIST_USER_2_ITEMS)
+
+        val update = watchlistRepository.findByUserIdAndAddToMovieIds("1", MOVIE_PULP_FICTION.id!!).block()
+
+        val then = getWatchlistById(WATCHLIST_USER_2_ITEMS.id!!)
+        assertThat(then).isEqualTo(WATCHLIST_USER_2_ITEMS)
+    }
+
+    @Test
+    fun `test purge movieId`() {
+        // TODO: replace this test
+        val now = getWatchlistById(WATCHLIST_USER_2_ITEMS.id!!)
+        assertThat(now).isEqualTo(WATCHLIST_USER_2_ITEMS)
+
+        val update = watchlistRepository.findByUserIdAndPullFromMovieIds("1", MOVIE_CITIZEN_KANE.id!!).block()
+
+        val then = getWatchlistById(WATCHLIST_USER_2_ITEMS.id!!)
+        assertThat(then).isEqualTo(WATCHLIST_USER_2_ITEMS)
     }
 
     @Test
@@ -56,6 +91,14 @@ class WatchlistMongoIntegrationTests {
                 {
                     "id": "5c3b91d0f5eb260004cae817",
                     "title": "GoodFellas"
+                },
+                {
+                    "id": "5c40fe2ddc0a020004a153bc",
+                    "title": "Citizen Kane"
+                },
+                {
+                    "id": "5c41037fdc0a020004a153bd",
+                    "title": "The Matrix"
                 }
             ]
         """.trimIndent()
@@ -70,12 +113,12 @@ class WatchlistMongoIntegrationTests {
     @Test
     fun `delete movie by id`() {
         client.delete()
-            .uri("$BASE_PATH/${MOVIE_PULP_FICTION.id}")
+            .uri("$BASE_PATH/${MOVIE_GOODFELLAS.id}")
             .accept(APPLICATION_JSON_UTF8)
             .exchange()
             .expectStatus().isOk
 
-        assertThat(getAllMovies()).containsExactly(MOVIE_GOODFELLAS)
+        assertThat(getAllMovies()).containsExactly(MOVIE_PULP_FICTION, MOVIE_CITIZEN_KANE, MOVIE_THE_MATRIX)
     }
 
     @Test
@@ -99,7 +142,9 @@ class WatchlistMongoIntegrationTests {
             .expectStatus().isOk
             .expectBody<Movie>().isEqualToIgnoringId(MOVIE_THE_GODFATHER)
 
-        assertThat(getAllMovies()).containsExactlyIgnoringId(MOVIE_PULP_FICTION, MOVIE_GOODFELLAS, MOVIE_THE_GODFATHER)
+        assertThat(getAllMovies()).containsExactlyIgnoringId(
+            MOVIE_PULP_FICTION, MOVIE_GOODFELLAS, MOVIE_CITIZEN_KANE, MOVIE_THE_MATRIX, MOVIE_THE_GODFATHER
+        )
     }
 
     @Test
@@ -112,7 +157,7 @@ class WatchlistMongoIntegrationTests {
             .expectStatus().isOk
             .expectBody<Movie>().isEqualToIgnoringId(MOVIE_GOODFELLAS)
 
-        assertThat(getAllMovies()).containsExactly(MOVIE_PULP_FICTION, MOVIE_GOODFELLAS)
+        assertThat(getAllMovies()).containsExactly(MOVIE_PULP_FICTION, MOVIE_GOODFELLAS, MOVIE_CITIZEN_KANE, MOVIE_THE_MATRIX)
 
         verifyNoMoreInteractions(tmdbWebClient, vodFacade)
     }
@@ -137,7 +182,7 @@ class WatchlistMongoIntegrationTests {
             .exchange()
             .expectStatus().isNotFound
 
-        assertThat(getAllMovies()).containsExactly(MOVIE_PULP_FICTION, MOVIE_GOODFELLAS)
+        assertThat(getAllMovies()).containsExactly(MOVIE_PULP_FICTION, MOVIE_GOODFELLAS, MOVIE_CITIZEN_KANE, MOVIE_THE_MATRIX)
     }
 
     @Test
@@ -152,7 +197,7 @@ class WatchlistMongoIntegrationTests {
             .exchange()
             .expectStatus().isNotFound
 
-        assertThat(getAllMovies()).containsExactly(MOVIE_PULP_FICTION, MOVIE_GOODFELLAS)
+        assertThat(getAllMovies()).containsExactly(MOVIE_PULP_FICTION, MOVIE_GOODFELLAS, MOVIE_CITIZEN_KANE, MOVIE_THE_MATRIX)
 
         verifyNoMoreInteractions(vodFacade)
     }
@@ -169,20 +214,31 @@ class WatchlistMongoIntegrationTests {
             .exchange()
             .expectStatus().is5xxServerError
 
-        assertThat(getAllMovies()).containsExactly(MOVIE_PULP_FICTION, MOVIE_GOODFELLAS)
+        assertThat(getAllMovies()).containsExactly(MOVIE_PULP_FICTION, MOVIE_GOODFELLAS, MOVIE_CITIZEN_KANE, MOVIE_THE_MATRIX)
 
         verifyNoMoreInteractions(vodFacade)
     }
 
     private fun populateMongoDb() {
+        // reset and create "movies" collection
         mongo.dropCollection(Movie::class.java)
         mongo.createCollection(Movie::class.java)
-        listOf(MOVIE_PULP_FICTION, MOVIE_GOODFELLAS).forEach {
-            mongo.save(it, MOVIE_COLLECTION)
+        listOf(MOVIE_PULP_FICTION, MOVIE_GOODFELLAS, MOVIE_CITIZEN_KANE, MOVIE_THE_MATRIX).forEach {
+            mongo.save(it, MOVIES_COLLECTION)
+        }
+
+        // reset and create "watchlists" collection
+        mongo.dropCollection(Watchlist::class.java)
+        mongo.createCollection(Watchlist::class.java)
+        listOf(
+            WATCHLIST_USER_2_ITEMS, WATCHLIST_USER_NO_ITEMS, WATCHLIST_USER_ALL_ITEMS
+        ).forEach {
+            mongo.save(it, WATCHLISTS_COLLECTION)
         }
     }
 
     private fun getAllMovies(): List<Movie> = mongo.findAll(Movie::class.java)
+    private fun getWatchlistById(id: String): Watchlist = mongo.findById(id, Watchlist::class.java)!!
 
     private fun <T> ListAssert<T>.containsExactlyIgnoringId(vararg values: T) =
         this.usingElementComparatorIgnoringFields("id").containsExactly(*values)
@@ -193,6 +249,7 @@ class WatchlistMongoIntegrationTests {
 
     private companion object {
         const val BASE_PATH = "/watchlist"
-        const val MOVIE_COLLECTION = "movies"
+        const val MOVIES_COLLECTION = "movies"
+        const val WATCHLISTS_COLLECTION = "watchlists"
     }
 }

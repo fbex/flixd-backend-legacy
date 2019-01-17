@@ -107,3 +107,39 @@ val MOVIE_THE_GODFATHER = Movie(
         )
     )
 )
+
+val MOVIE_CITIZEN_KANE = Movie(
+    id = "5c40fe2ddc0a020004a153bc",
+    tmdbId = 15,
+    justWatchId = 83648,
+    imdbId = "tt0068646",
+    tomatoId = 10074,
+    title = "Citizen Kane",
+    originalTitle = "Citizen Kane",
+    releaseDate = LocalDate.of(1941, 4, 30),
+    runtime = 119,
+    genres = listOf(Genre(id = 9648, name = "Mystery"), Genre(id = 18, name = "Drama")),
+    overview = "Newspaper magnate, Charles Foster Kane is taken from his mother as a boy and made the ward of a rich industrialist. As a result, every well-meaning, tyrannical or self-destructive move he makes for the rest of his life appears in some way to be a reaction to that deeply wounding event.",
+    posterPath = "/sav0jxhqiH0bPr2vZFU0Kjt2nZL.jpg",
+    adult = false,
+    scores = Scores(tmdb = 8.1),
+    offers = listOf()
+)
+
+val MOVIE_THE_MATRIX = Movie(
+    id = "5c41037fdc0a020004a153bd",
+    tmdbId = 603,
+    justWatchId = 10,
+    imdbId = "tt0133093",
+    tomatoId = 12897,
+    title = "The Matrix",
+    originalTitle = "The Matrix",
+    releaseDate = LocalDate.of(1999, 3, 30),
+    runtime = 136,
+    genres = listOf(Genre(id = 28, name = "Action"), Genre(id = 878, name = "Science Fiction")),
+    overview = "Set in the 22nd century, The Matrix tells the story of a computer hacker who joins a group of underground insurgents fighting the vast and powerful computers who now rule the earth.",
+    posterPath = "/hEpWvX6Bp79eLxY1kX5ZZJcme5U.jpg",
+    adult = false,
+    scores = Scores(tmdb = 8.1),
+    offers = listOf()
+)

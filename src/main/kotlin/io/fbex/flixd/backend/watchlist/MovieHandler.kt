@@ -14,9 +14,10 @@ import reactor.core.publisher.switchIfEmpty
 
 @Component
 class MovieHandler(
-    val movieRepository: MovieRepository,
-    val tmdbWebClient: TmdbWebClient,
-    val vodFacade: VodFacade
+    private val movieRepository: MovieRepository,
+    private val watchlistRepository: WatchlistRepository,
+    private val tmdbWebClient: TmdbWebClient,
+    private val vodFacade: VodFacade
 ) {
 
     fun all(request: ServerRequest): Mono<ServerResponse> {
@@ -60,7 +61,16 @@ class MovieHandler(
                     movieRepository.save(createdMovie)
                 }
             }.flatMap { movie ->
-                ok().contentType(APPLICATION_JSON_UTF8).body(fromObject(movie))
+                // add to watchlist, if it doesn't already exist
+                watchlistRepository.findByUserIdAndPullFromMovieIds("1", movie.id!!).flatMap {
+                    if (it.wasAcknowledged()) {
+                        // movie added
+                        ok().contentType(APPLICATION_JSON_UTF8).body(fromObject(movie))
+                    } else {
+                        // movie already existed
+                        notFound().build() // TODO: change response status
+                    }
+                }
             }.switchIfEmpty {
                 notFound().build()
             }
